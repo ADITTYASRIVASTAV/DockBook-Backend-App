@@ -91,7 +91,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 frontendUrl,
-                "http://localhost:5173"
+                "https://dock-book-frontend-app.vercel.app"
+//                "http://localhost:5173"
         ));
         config.setAllowedMethods(List.of(
                 "GET",
