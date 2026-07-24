@@ -7,6 +7,7 @@ import com.Aditya.DocBookApp.Utils.EmailTemplateUtil;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -16,21 +17,27 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
+
     private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:rajshrivastav1456@gmail.com}")
+    private String fromEmail;
 
     @Override
     @Async
     public void sendOtpEmail(String toEmail, String otp) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject("DocBook - OTP Verification");
             helper.setText(EmailTemplateUtil.buildOtpEmail(otp), true);
 
             mailSender.send(message);
-        } catch (Exception e) {
+            log.info("Successfully sent OTP email to: {}", toEmail);
+        } catch (Throwable e) {
             log.error("Failed to send OTP email to {}: {}", toEmail, e.getMessage());
         }
     }
@@ -48,8 +55,9 @@ public class EmailServiceImpl implements EmailService {
             String time = appointment.getTimeSlot().getStartTime() + " - " + appointment.getTimeSlot().getEndTime();
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject("Appointment Confirmation - DocBook");
             helper.setText(
@@ -76,8 +84,9 @@ public class EmailServiceImpl implements EmailService {
             String time = appointment.getTimeSlot().getStartTime() + " - " + appointment.getTimeSlot().getEndTime();
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject("Appointment Rejected - DocBook");
             helper.setText(
@@ -106,8 +115,9 @@ public class EmailServiceImpl implements EmailService {
             String time = appointment.getTimeSlot().getStartTime() + " - " + appointment.getTimeSlot().getEndTime();
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject("Appointment Accepted - DocBook");
             helper.setText(
@@ -134,8 +144,9 @@ public class EmailServiceImpl implements EmailService {
             String time = appointment.getTimeSlot().getStartTime() + " - " + appointment.getTimeSlot().getEndTime();
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject("Appointment Cancelled - DocBook");
             helper.setText(
@@ -162,8 +173,9 @@ public class EmailServiceImpl implements EmailService {
             String orderId = payment.getRazorpayOrderId();
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject("Payment Receipt - DocBook");
             helper.setText(
@@ -174,7 +186,7 @@ public class EmailServiceImpl implements EmailService {
             );
 
             mailSender.send(message);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Failed to send payment receipt email: {}", e.getMessage());
         }
     }
@@ -191,8 +203,9 @@ public class EmailServiceImpl implements EmailService {
             String time = appointment.getTimeSlot().getStartTime() + " - " + appointment.getTimeSlot().getEndTime();
 
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(to);
             helper.setSubject("Appointment Reminder - DocBook");
             helper.setText(
@@ -203,7 +216,7 @@ public class EmailServiceImpl implements EmailService {
             );
 
             mailSender.send(message);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Failed to send appointment reminder email: {}", e.getMessage());
         }
     }
@@ -213,31 +226,32 @@ public class EmailServiceImpl implements EmailService {
     public void sendPasswordResetOtp(String toEmail, String otp) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
+            helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject("Password Reset - DocBook");
             helper.setText(
-                "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>" +
-                    "<div style='background: linear-gradient(135deg, #1a2b4a, #2d3748); padding: 30px; border-radius: 16px; text-align: center;'>" +
-                        "<h1 style='color: #4fbdba; margin: 0;'>DocBook</h1>" +
-                        "<p style='color: #cbd5e0; margin-top: 8px;'>Password Reset Request</p>" +
-                    "</div>" +
-                    "<div style='background: #ffffff; padding: 30px; border-radius: 16px; margin-top: 16px; border: 1px solid #e2e8f0;'>" +
-                        "<p style='color: #2d3748; font-size: 16px;'>Hello,</p>" +
-                        "<p style='color: #4a5568;'>You requested to reset your password. Use the following OTP to proceed:</p>" +
-                        "<div style='background: #f7fafc; padding: 20px; border-radius: 12px; text-align: center; margin: 24px 0;'>" +
+                    "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>" +
+                            "<div style='background: linear-gradient(135deg, #1a2b4a, #2d3748); padding: 30px; border-radius: 16px; text-align: center;'>" +
+                            "<h1 style='color: #4fbdba; margin: 0;'>DocBook</h1>" +
+                            "<p style='color: #cbd5e0; margin-top: 8px;'>Password Reset Request</p>" +
+                            "</div>" +
+                            "<div style='background: #ffffff; padding: 30px; border-radius: 16px; margin-top: 16px; border: 1px solid #e2e8f0;'>" +
+                            "<p style='color: #2d3748; font-size: 16px;'>Hello,</p>" +
+                            "<p style='color: #4a5568;'>You requested to reset your password. Use the following OTP to proceed:</p>" +
+                            "<div style='background: #f7fafc; padding: 20px; border-radius: 12px; text-align: center; margin: 24px 0;'>" +
                             "<span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1a2b4a;'>" + otp + "</span>" +
-                        "</div>" +
-                        "<p style='color: #718096; font-size: 14px;'>This OTP is valid for <strong>10 minutes</strong>. If you didn't request this, please ignore this email.</p>" +
-                    "</div>" +
-                    "<p style='text-align: center; color: #a0aec0; font-size: 12px; margin-top: 16px;'>&copy; 2026 DocBook Healthcare. All rights reserved.</p>" +
-                "</div>",
-                true
+                            "</div>" +
+                            "<p style='color: #718096; font-size: 14px;'>This OTP is valid for <strong>10 minutes</strong>. If you didn't request this, please ignore this email.</p>" +
+                            "</div>" +
+                            "<p style='text-align: center; color: #a0aec0; font-size: 12px; margin-top: 16px;'>&copy; 2026 DocBook Healthcare. All rights reserved.</p>" +
+                            "</div>",
+                    true
             );
 
             mailSender.send(message);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             log.error("Failed to send password reset OTP email to {}: {}", toEmail, e.getMessage());
         }
     }
